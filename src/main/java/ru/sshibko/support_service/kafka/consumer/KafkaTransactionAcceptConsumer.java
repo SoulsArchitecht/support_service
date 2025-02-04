@@ -3,6 +3,7 @@ package ru.sshibko.support_service.kafka.consumer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -11,6 +12,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import ru.sshibko.support_service.dto.TransactionAcceptDto;
 import ru.sshibko.support_service.dto.TransactionResultDto;
+import ru.sshibko.support_service.enums.TransactionStatus;
 import ru.sshibko.support_service.service.TransactionService;
 
 import java.time.Duration;
@@ -27,7 +29,10 @@ public class KafkaTransactionAcceptConsumer {
 
     private final TransactionService transactionService;
 
-    @KafkaListener(topics = "${support_service.kafka.topic-transactions-accept}",
+    @Value("${support_service.kafka.topic.transactions-result}")
+    private String transactionResultTopicName;
+
+    @KafkaListener(topics = "${support_service.kafka.topic.transactions-accept}",
     groupId = "${support_service.kafka.consumer.transaction-group-id}",
     containerFactory = "kafkaListenerContainerFactoryTransactionAccept")
     public void transactionAcceptListener(@Payload List<TransactionAcceptDto> messages,
@@ -38,33 +43,60 @@ public class KafkaTransactionAcceptConsumer {
         log.debug("some");
         try {
             messages.forEach(dto -> {
-                TransactionAcceptDto transactionAcceptDto = TransactionAcceptDto.builder()
+                TransactionAcceptDto transactionAcceptDto = getTransactionAcceptDto(dto);
+                
+/*                TransactionAcceptDto transactionAcceptDto = TransactionAcceptDto.builder()
                         .clientId(dto.getClientId())
                         .accountId(dto.getAccountId())
                         .transactionId(dto.getTransactionId())
                         .createdAt(dto.getCreatedAt())
                         .transactionAmount(dto.getTransactionAmount())
                         .accountBalance(dto.getAccountBalance())
-                        .build();
-                TransactionResultDto transactionResultDto = TransactionResultDto.builder()
+                        .build();*/
+/*                TransactionResultDto transactionResultDto = TransactionResultDto.builder()
                         .accountId(dto.getAccountId())
                                 .transactionId(dto.getTransactionId())
                                         .transactionStatus("NONE")
-                                                .build();
+                                                .build();*/
                 //TODO logic for status filtering
                 //if (dto.getCreatedAt())
 
-/*                if (dto.getAccountBalance().longValue() < dto.getTransactionAmount().longValue()) {
-                    sendMessage(status Rejected);
-                }*/
+                if (transactionAcceptDto.getAccountBalance().longValue()
+                        < transactionAcceptDto.getTransactionAmount().longValue()) {
+                    TransactionResultDto transactionResultDto = TransactionResultDto.builder()
+                            .accountId(transactionAcceptDto.getAccountId())
+                            .transactionId(transactionAcceptDto.getTransactionId())
+                            .transactionStatus(TransactionStatus.REJECTED.toString())
+                            .build();
+                    transactionService.sendTransactionResultMessage(transactionResultTopicName,
+                            transactionResultDto);
+                    log.warn("There are insufficient funds in the account with accountId " +
+                            transactionResultDto.getAccountId());
+                }
 
-                //sendMessage (status Accepted)
-                //transactionService.sendTransactionAcceptMessage(transactionResultDto);
+                TransactionResultDto transactionResultDto = TransactionResultDto.builder()
+                        .accountId(transactionAcceptDto.getAccountId())
+                        .transactionId(transactionAcceptDto.getTransactionId())
+                        .transactionStatus(TransactionStatus.ACCEPTED.toString())
+                        .build();
+                transactionService.sendTransactionResultMessage(transactionResultTopicName,
+                        transactionResultDto);
             });
 
         } finally {
             ack.acknowledge();
         }
+    }
+
+    private static TransactionAcceptDto getTransactionAcceptDto(TransactionAcceptDto dto) {
+        TransactionAcceptDto transactionAcceptDto = new TransactionAcceptDto();
+        transactionAcceptDto.setClientId(dto.getClientId());
+        transactionAcceptDto.setAccountId(dto.getAccountId());
+        transactionAcceptDto.setTransactionId(dto.getTransactionId());
+        transactionAcceptDto.setCreatedAt(dto.getCreatedAt());
+        transactionAcceptDto.setTransactionAmount(dto.getTransactionAmount());
+        transactionAcceptDto.setAccountBalance(dto.getAccountBalance());
+        return transactionAcceptDto;
     }
 
 

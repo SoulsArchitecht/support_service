@@ -24,7 +24,8 @@ support_service:
       heartbeat-interval: 3000
       key-serializer: org.apache.kafka.common.serialization.StringDeserializer
       value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      trusted-packages: "ru.sshibko.support_service.*"
+      #trusted-packages: "ru.sshibko.support_service.*"
+      trusted-packages: "ru.t1.java.demo.*"
       enable-auto-commit: false
       auto-offset-reset: "earliest"
       max-partition-fetch-bytes: 300000

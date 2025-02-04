@@ -23,7 +23,7 @@ public class TransactionService {
 
     private final String MESSAGE_KEY = String.valueOf(UUID.randomUUID());
 
-    @Value("${t1.kafka.topic.transactions-result}")
+    @Value("${support_service.kafka.topic.transactions-result}")
     private String transactionResultTopicName;
 
     /** Sending message to Kafka

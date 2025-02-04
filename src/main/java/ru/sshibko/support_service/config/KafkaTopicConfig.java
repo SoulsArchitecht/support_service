@@ -9,12 +9,8 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaTopicConfig {
 
-
-
-    @Value("${t1.kafka.topic.transactions-result}")
+    @Value("${support_service.kafka.topic.transactions-result}")
     private String transactionResultTopicName;
-
-
 
     @Bean
     public NewTopic TransactionResultTopic() {

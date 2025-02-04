@@ -64,7 +64,7 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, TransactionAcceptDto> transactionAcceptListenerFactory() {
         Map<String, Object> props = new HashMap<>(consumerProperties());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerProperties.getTransactionGroupId());
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "ru.t1.java.demo.dto.TransactionDto");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "ru.sshibko.support_service.dto.TransactionAcceptDto");
         DefaultKafkaConsumerFactory<String, TransactionAcceptDto> factory = new DefaultKafkaConsumerFactory<>(props);
         factory.setKeyDeserializer(new StringDeserializer());
 
