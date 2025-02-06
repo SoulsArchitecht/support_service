@@ -16,7 +16,7 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
-import ru.sshibko.support_service.dto.TransactionAcceptDto;
+import  ru.t1.dto.TransactionAcceptDto;
 import ru.sshibko.support_service.kafka.KafkaConsumerProperties;
 import ru.sshibko.support_service.kafka.MessageDeserializer;
 
@@ -64,7 +64,7 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, TransactionAcceptDto> transactionAcceptListenerFactory() {
         Map<String, Object> props = new HashMap<>(consumerProperties());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerProperties.getTransactionGroupId());
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "ru.sshibko.support_service.dto.TransactionAcceptDto");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "ru.t1.dto.TransactionAcceptDto");
         DefaultKafkaConsumerFactory<String, TransactionAcceptDto> factory = new DefaultKafkaConsumerFactory<>(props);
         factory.setKeyDeserializer(new StringDeserializer());
 

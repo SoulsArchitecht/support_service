@@ -24,7 +24,6 @@ support_service:
       heartbeat-interval: 3000
       key-serializer: org.apache.kafka.common.serialization.StringDeserializer
       value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      #trusted-packages: "ru.sshibko.support_service.*"
       trusted-packages: "ru.t1.java.demo.*"
       enable-auto-commit: false
       auto-offset-reset: "earliest"
@@ -34,6 +33,8 @@ support_service:
       client-group-id: client_consumer_group
       transaction-accept-group-id: transaction_accept_group
       transaction-result-group-id: transaction_result_group
+      transaction-threshold: 5
+      transaction-time-frame: 60
     producer:
       enable: true
       retries: 3
@@ -47,6 +48,5 @@ support_service:
       transactions-result: t1_demo_transaction_result
     listener:
       poll-timeout: 1000
-  metric:
-    execution-time-limit: 7
+
 
