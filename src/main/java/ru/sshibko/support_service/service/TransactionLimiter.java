@@ -6,15 +6,19 @@ import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 
+/** You may to switch to alternate Transaction Limiter with Redis,
+ * but you'll need to realize some additional settings
+ * This service build does not include redis config, redis props and redis dependencies
+ * You need docker-compose with Redis setting still.
+ * Александр, класс RedisTransactionLimiter оставлен в качестве альтернативного примера. Все пояснения выше.
+ */
 @Component
 public class TransactionLimiter {
-
     private Cache<String, LinkedList<LocalDateTime>> transactionsCache;
 
     @Value("${support_service.kafka.consumer.transaction-threshold}")
@@ -35,7 +39,7 @@ public class TransactionLimiter {
         var  transactionsTimeList = transactionsCache.get(accountId, LinkedList::new);
 
         if (isMaximumTransactionCount(transactionsTimeList) &&
-            isTransactionIntervalExceeded(transactionsTimeList)) {
+                isTransactionIntervalExceeded(transactionsTimeList)) {
             return true;
         }
 
