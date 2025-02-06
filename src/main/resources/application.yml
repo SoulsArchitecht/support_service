@@ -43,6 +43,9 @@ support_service:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: 0
+      batch-size-config: 16384
+      linger-ms-config: 10
+      max-in-flight-request-per-second: 5
     topic:
       transactions-accept: t1_demo_transaction_accept
       transactions-result: t1_demo_transaction_result

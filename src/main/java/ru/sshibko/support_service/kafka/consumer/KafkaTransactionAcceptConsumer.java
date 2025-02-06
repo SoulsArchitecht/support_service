@@ -14,7 +14,6 @@ import ru.sshibko.support_service.service.TransactionService;
 import ru.t1.dto.TransactionAcceptDto;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
@@ -22,8 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class KafkaTransactionAcceptConsumer {
 
     private final TransactionService transactionService;
-
-    private final Map<String, List<TransactionAcceptDto>> accountTransactions = new ConcurrentHashMap<>();
 
     @KafkaListener(topics = "${support_service.kafka.topic.transactions-accept}",
     groupId = "${support_service.kafka.consumer.transaction-group-id}",
@@ -33,6 +30,7 @@ public class KafkaTransactionAcceptConsumer {
                                           @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                           @Header(KafkaHeaders.RECEIVED_KEY) String key
     ) {
+        log.info("Topic: {}, Key: {} start proceeding", topic, key);
         try {
             messages.forEach(transactionService::processTransactionResult);
         } catch (ProcessingException e) {
@@ -40,5 +38,6 @@ public class KafkaTransactionAcceptConsumer {
         } finally {
             ack.acknowledge();
         }
+        log.info("Topic: {}, Key: {} end proceeding", topic, key);
     }
 }
