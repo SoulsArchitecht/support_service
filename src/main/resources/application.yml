@@ -1,0 +1,55 @@
+server:
+  port:
+    8081
+
+spring:
+  application:
+    name: support_service
+
+logging:
+  level:
+    ROOT: INFO
+    ru.t1.java.demo.controller.ClientController: DEBUG
+
+support_service:
+  scan-path: ru.sshibko.support_service
+  kafka:
+    bootstrap:
+      server: ${KAFKA_SERVER:localhost:9092}
+    consumer:
+      group-id: t1-demo
+      max-poll-records: 10
+      max-poll-interval: 30000
+      session-timeout: 30000
+      heartbeat-interval: 3000
+      key-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      trusted-packages: "ru.t1.java.demo.*"
+      enable-auto-commit: false
+      auto-offset-reset: "earliest"
+      max-partition-fetch-bytes: 300000
+      transaction-group-id: transaction_consumer_group
+      account-group-id: account_consumer_group
+      client-group-id: client_consumer_group
+      transaction-accept-group-id: transaction_accept_group
+      transaction-result-group-id: transaction_result_group
+      transaction-threshold: 5
+      transaction-time-frame: 60
+    producer:
+      enable: true
+      retries: 3
+      enable-idempotence: false
+      retry-backoff-ms: 1000
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 0
+      batch-size-config: 16384
+      linger-ms-config: 10
+      max-in-flight-request-per-second: 5
+    topic:
+      transactions-accept: t1_demo_transaction_accept
+      transactions-result: t1_demo_transaction_result
+    listener:
+      poll-timeout: 1000
+
+
